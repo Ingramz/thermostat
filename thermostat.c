@@ -84,7 +84,7 @@ void httpd_task(void *pvParameters)
 
 void measure_task(void *pvParameters)
 {
-    ds18b20_addr_t addr = 0x28FF0CA301170383ULL;
+    ds18b20_addr_t addr = 0x83031701A30CFF28ULL;
 
     while (1) {
         temperature = ds18b20_measure_and_read(SENSOR_GPIO, addr);
