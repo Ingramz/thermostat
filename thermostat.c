@@ -12,6 +12,8 @@
 #include <task.h>
 #include <ssid_config.h>
 #include <httpd/httpd.h>
+#include <ds18b20/ds18b20.h>
+#include <math.h>
 
 enum {
     SSI_TEMPERATURE,
@@ -25,10 +27,10 @@ enum {
 volatile int error_count = 0;
 volatile float temperature = NAN;
 
-typedef enum ThermostatState {
+typedef enum {
     Cooling,
     Heating
-};
+} ThermostatState;
 
 ThermostatState ts = Cooling;
 #define RELAY_PIN 12
@@ -43,7 +45,7 @@ int32_t ssi_handler(int32_t iIndex, char *pcInsert, int32_t iInsertLen)
           snprintf(pcInsert, iInsertLen, "%d", error_count);
           break;
         case SSI_THERMOSTAT_STATE:
-            snprintf(pcInsert, iInsertLen, (ts == Heating ? "Heating" : "Cooling");
+            snprintf(pcInsert, iInsertLen, ts == Heating ? "Heating" : "Cooling");
             break;
         default:
             snprintf(pcInsert, iInsertLen, "N/A");
@@ -87,7 +89,7 @@ void measure_task(void *pvParameters)
     while (1) {
         temperature = ds18b20_measure_and_read(SENSOR_GPIO, addr);
 
-        if (temperature == NAN) {
+        if (isnan(temperature)) {
             error_count++;
         } else {
             error_count = 0;
@@ -116,17 +118,17 @@ void thermostat_task(void *pvParameters) {
 
     while (1) {
       if (error_count > 10) {
-          setState(Cooling);
+          setThermostatState(Cooling);
       } else {
           switch (ts) {
               case Cooling:
                   if (temperature < 60.0) {
-                      setState(Heating);
+                      setThermostatState(Heating);
                   }
                   break;
               case Heating:
                   if (temperature > 80.0) {
-                      setState(Cooling);
+                      setThermostatState(Cooling);
                   }
                   break;
           }
@@ -153,7 +155,7 @@ void user_init(void)
     sdk_wifi_station_connect();
 
     /* initialize tasks */
-    xTaskCreate(httpd_task, "HTTP Daemon", 128, NULL, 2, NULL);
-    xTaskCreate(measure_task, "Measurement", 128, NULL, 3, NULL);
-    xTaskCreate(thermostat_task, "Thermostat", 128, NULL, 4, NULL);
+    xTaskCreate(httpd_task, "HTTP Daemon", 256, NULL, 2, NULL);
+    xTaskCreate(measure_task, "Measurement", 256, NULL, 3, NULL);
+    xTaskCreate(thermostat_task, "Thermostat", 256, NULL, 4, NULL);
 }
