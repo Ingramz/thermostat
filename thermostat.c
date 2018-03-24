@@ -37,13 +37,14 @@ ThermostatState ts = Cooling;
 
 int32_t ssi_handler(int32_t iIndex, char *pcInsert, int32_t iInsertLen)
 {
+    printf("ssi handler: %d\n", iIndex)
     switch (iIndex) {
-      case SSI_TEMPERATURE:
-          snprintf(pcInsert, iInsertLen, "%.2f", temperature);
-          break;
-      case SSI_ERROR_COUNT:
-          snprintf(pcInsert, iInsertLen, "%d", error_count);
-          break;
+        case SSI_TEMPERATURE:
+            snprintf(pcInsert, iInsertLen, "%.2f", temperature);
+            break;
+        case SSI_ERROR_COUNT:
+            snprintf(pcInsert, iInsertLen, "%d", error_count);
+            break;
         case SSI_THERMOSTAT_STATE:
             snprintf(pcInsert, iInsertLen, ts == Heating ? "Heating" : "Cooling");
             break;
@@ -100,17 +101,17 @@ void measure_task(void *pvParameters)
 }
 
 void setThermostatState(ThermostatState state) {
-  if (ts == state) {
-    return;
-  }
+    if (ts == state) {
+        return;
+    }
 
-  ts = state;
+    ts = state;
 
-  if (state == Heating) {
-    gpio_write(RELAY_PIN, 1);
-  } else {
-    gpio_write(RELAY_PIN, 0);
-  }
+    if (state == Heating) {
+        gpio_write(RELAY_PIN, 1);
+    } else {
+        gpio_write(RELAY_PIN, 0);
+    }
 }
 
 void thermostat_task(void *pvParameters) {
