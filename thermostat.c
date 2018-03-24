@@ -119,7 +119,7 @@ void thermostat_task(void *pvParameters) {
     while (1) {
       if (error_count > 10) {
           setThermostatState(Cooling);
-      } else {
+      } else if (!isnan(temperature)) {
           switch (ts) {
               case Cooling:
                   if (temperature < 60.0) {
