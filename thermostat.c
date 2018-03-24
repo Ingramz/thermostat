@@ -34,7 +34,6 @@ volatile int error_count = 0;
 volatile float temperature = NAN;
 volatile ThermostatState ts = Cooling;
 
-
 int32_t ssi_handler(int32_t iIndex, char *pcInsert, int32_t iInsertLen)
 {
     switch (iIndex) {
@@ -53,7 +52,7 @@ int32_t ssi_handler(int32_t iIndex, char *pcInsert, int32_t iInsertLen)
     }
 
     /* Tell the server how many characters to insert */
-    return (strlen(pcInsert));
+    return strlen(pcInsert);
 }
 
 char *gpio_cgi_handler(int iIndex, int iNumParams, char *pcParam[], char *pcValue[])
@@ -112,24 +111,24 @@ void thermostat_task(void *pvParameters) {
     gpio_enable(RELAY_GPIO, GPIO_OUTPUT);
 
     while (1) {
-      if (error_count > 10) {
-          setThermostatState(Cooling);
-      } else if (!isnan(temperature)) {
-          switch (ts) {
-              case Cooling:
-                  if (temperature < 60.0) {
-                      setThermostatState(Heating);
-                  }
-                  break;
-              case Heating:
-                  if (temperature > 80.0) {
-                      setThermostatState(Cooling);
-                  }
-                  break;
-          }
-      }
+        if (error_count > 10) {
+            setThermostatState(Cooling);
+        } else if (!isnan(temperature)) {
+            switch (ts) {
+                case Cooling:
+                    if (temperature < 60.0) {
+                        setThermostatState(Heating);
+                    }
+                    break;
+                case Heating:
+                    if (temperature > 80.0) {
+                        setThermostatState(Cooling);
+                    }
+                    break;
+            }
+        }
 
-      vTaskDelay(LOOP_DELAY_MS / portTICK_PERIOD_MS);
+        vTaskDelay(LOOP_DELAY_MS / portTICK_PERIOD_MS);
     }
 }
 
