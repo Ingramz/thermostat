@@ -21,19 +21,19 @@ enum {
     SSI_ERROR_COUNT
 };
 
-#define SENSOR_GPIO 14
-#define LOOP_DELAY_MS 250
-
-volatile int error_count = 0;
-volatile float temperature = NAN;
-
 typedef enum {
     Cooling,
     Heating
 } ThermostatState;
 
-ThermostatState ts = Cooling;
-#define RELAY_PIN 12
+#define RELAY_GPIO 12
+#define SENSOR_GPIO 14
+#define LOOP_DELAY_MS 250
+
+volatile int error_count = 0;
+volatile float temperature = NAN;
+volatile ThermostatState ts = Cooling;
+
 
 int32_t ssi_handler(int32_t iIndex, char *pcInsert, int32_t iInsertLen)
 {
@@ -105,16 +105,11 @@ void setThermostatState(ThermostatState state) {
     }
 
     ts = state;
-
-    if (state == Heating) {
-        gpio_write(RELAY_PIN, 1);
-    } else {
-        gpio_write(RELAY_PIN, 0);
-    }
+    gpio_write(RELAY_GPIO, state == Heating);
 }
 
 void thermostat_task(void *pvParameters) {
-    gpio_enable(RELAY_PIN, GPIO_OUTPUT);
+    gpio_enable(RELAY_GPIO, GPIO_OUTPUT);
 
     while (1) {
       if (error_count > 10) {
