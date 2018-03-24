@@ -25,15 +25,15 @@
 			<table class="table table-striped">
 				<tr>
 					<td><b>Temperature:</b></td>
-					<td><!--#temperature--> &deg;C</td>
+					<td><!--#temp--> &deg;C</td>
 				</tr>
 				<tr>
 					<td><b>Thermostat state:</b></td>
-					<td><!--#thermostat_state--></td>
+					<td><!--#stat--></td>
 				</tr>
 				<tr>
 					<td><b>Error count:</b></td>
-					<td><!--#error_count--></td>
+					<td><!--#err--></td>
 				</tr>
 			</table>
 		</div>

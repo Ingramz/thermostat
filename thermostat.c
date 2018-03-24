@@ -37,7 +37,6 @@ ThermostatState ts = Cooling;
 
 int32_t ssi_handler(int32_t iIndex, char *pcInsert, int32_t iInsertLen)
 {
-    printf("ssi handler: %d\n", iIndex)
     switch (iIndex) {
         case SSI_TEMPERATURE:
             snprintf(pcInsert, iInsertLen, "%.2f", temperature);
@@ -69,9 +68,9 @@ void httpd_task(void *pvParameters)
     };
 
     const char *pcConfigSSITags[] = {
-        "temperature",      // SSI_TEMPERATURE
-        "thermostat_state", // SSI_THERMOSTAT_STATE
-        "error_count"       // SSI_ERROR_COUNT
+        "temp", // SSI_TEMPERATURE
+        "stat", // SSI_THERMOSTAT_STATE
+        "err"   // SSI_ERROR_COUNT
     };
 
     /* register handlers and start the server */
@@ -156,7 +155,7 @@ void user_init(void)
     sdk_wifi_station_connect();
 
     /* initialize tasks */
-    xTaskCreate(httpd_task, "HTTP Daemon", 256, NULL, 2, NULL);
-    xTaskCreate(measure_task, "Measurement", 256, NULL, 3, NULL);
-    xTaskCreate(thermostat_task, "Thermostat", 256, NULL, 4, NULL);
+    xTaskCreate(&httpd_task, "HTTP Daemon", 256, NULL, 2, NULL);
+    xTaskCreate(&measure_task, "Measurement", 256, NULL, 3, NULL);
+    xTaskCreate(&thermostat_task, "Thermostat", 256, NULL, 4, NULL);
 }
