@@ -99,16 +99,13 @@ void measure_task(void *pvParameters)
 }
 
 void setThermostatState(ThermostatState state) {
-    if (ts == state) {
-        return;
-    }
-
     ts = state;
     gpio_write(RELAY_GPIO, state == Heating);
 }
 
 void thermostat_task(void *pvParameters) {
     gpio_enable(RELAY_GPIO, GPIO_OUTPUT);
+    gpio_write(RELAY_GPIO, false);
 
     while (1) {
         if (error_count > 10) {
@@ -118,12 +115,17 @@ void thermostat_task(void *pvParameters) {
                 case Cooling:
                     if (temperature < 60.0) {
                         setThermostatState(Heating);
+                    } else {
+                        setThermostatState(Cooling);
                     }
                     break;
                 case Heating:
                     if (temperature > 80.0) {
                         setThermostatState(Cooling);
                     }
+                    break;
+                default:
+                    setThermostatState(Cooling);
                     break;
             }
         }
